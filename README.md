@@ -3,42 +3,8 @@ AST to GraphViz
 
 A programmable GraphViz (dot) generator for ROSE Compiler, it uses ROSE's [AstTopDownProcessing](http://rosecompiler.org/ROSE_HTML_Reference/classAstTopDownProcessing.html).
 
-Prototype of the top-down GraphViz Generator:
-```c++
-template <class DownAttr_tpl>
-class TopDown : public AstTopDownProcessing<DownAttr<DownAttr_tpl> > {
-  protected:
-    std::map<SgNode *, NodeDesc> p_nodes;
-    std::map<std::pair<SgNode *, SgNode *>, EdgeDesc> p_edges;
+## Prototype of the top-down GraphViz Generator
 
-    void printNodeName(std::ostream & out, const SgNode * node) const;
-    void toDot(std::ostream & out, const SgNode * node, const NodeDesc & desc) const;
-    void toDot(std::ostream & out, const std::pair<SgNode *, SgNode *> & edge, const EdgeDesc & desc) const;
-
-  public:
-    TopDown();
-
-    void toDot(std::ostream & out) const;
-
-    NodeDesc & addNode(SgNode * node);
-
-    EdgeDesc & addEdge(SgNode * node, SgNode * parent);
-
-    void clear();
-
-  protected:
-    virtual bool skipNode(SgNode * node, const DownAttr_tpl & attr_in);
-    virtual void computeAttr(SgNode * node, const DownAttr_tpl & attr_in, DownAttr_tpl & attr_out);
-
-    virtual bool stopAtNode(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out);
-
-    virtual void editNodeDesc(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out, NodeDesc & node_desc) = 0;
-    virtual void editEdgeDesc(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out, SgNode * parent, EdgeDesc & edge_desc) = 0;
-
-    DownAttr<DownAttr_tpl> evaluateInheritedAttribute(SgNode * node, DownAttr<DownAttr_tpl> attr_in);
-};
-```
-Node and edge descriptors:
 ```c++
 struct NodeDesc {
   std::string label;
@@ -52,9 +18,35 @@ struct EdgeDesc {
   std::string color;
   bool constraint;
 };
-```
 
-A minimal implementation:
+template <class DownAttr_tpl>
+class TopDown : public AstTopDownProcessing<DownAttr<DownAttr_tpl> > {
+  public:
+    TopDown();
+    void toDot(std::ostream & out) const;
+    void clear();
+
+    NodeDesc & addNode(SgNode * node);
+    EdgeDesc & addEdge(SgNode * node, SgNode * parent);
+
+  protected:
+    virtual bool skipNode(SgNode * node, const DownAttr_tpl & attr_in);
+    virtual void computeAttr(SgNode * node, const DownAttr_tpl & attr_in, DownAttr_tpl & attr_out);
+
+    virtual bool stopAtNode(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out);
+
+    virtual void editNodeDesc(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out, NodeDesc & node_desc) = 0;
+    virtual void editEdgeDesc(SgNode * node, const DownAttr_tpl & attr_in, const DownAttr_tpl & attr_out, SgNode * parent, EdgeDesc & edge_desc) = 0;
+
+    DownAttr<DownAttr_tpl> evaluateInheritedAttribute(SgNode * node, DownAttr<DownAttr_tpl> attr_in);
+};
+```
+A specialization AST2GraphViz::Basic is provided. It is demonstrated in whole-ast-to-graphviz.cpp and extract-api-fragment.cpp.
+
+## Make your own implementation
+
+### Minimal implementation
+
 ```c++
 struct EmptyDownAttr {};
 
@@ -79,12 +71,23 @@ class Basic : public AST2GraphViz::TopDown<EmptyDownAttr> {
     }
 };
 ```
+Using ROSE's interface, you can extract information from the Sage nodes.
+You can then use these information to edit the descriptor.
 
-Using ROSE's interface, we can extract the information we want from each node, and we edit the descriptors accordingly.
-Other virtual method can be reimplemented for more control:
+### Controling the traversal
+
+More virtual methods can be reimplemented for more control:
 * skipNode: skips node in the traversal. In the resulting graph, the children of the skipped node will have the parent of the skipped node for parent.
-* stopAtNode: stops exporting the AST at this node
-* computeAttr: enables to graft a top-down analysis. It is called before all other overloadable methods. These method receive both input and output version of the user defined attribute.
+* stopAtNode: the children of the current node will no be included in the graph (the traversal continue). 
+
+### Embeding a top-down analysis of the AST
+
+AST2GraphViz::TopDown is a template of the attribute passed down the AST during the traversal.
+You can use this function in association with the computeAttr to graft your top-down analysis of the AST.
+It takes the input attribute, inherited from the parent node, and produce an output attribute, forwarded to the children.
+computeAttr is called before all other overloadable methods. These methods receive both input and output attributes.
+
+Using this one can output on the graph the steps of the analysis.
 
 
 
