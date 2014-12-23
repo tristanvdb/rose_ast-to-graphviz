@@ -1,16 +1,13 @@
 
-#include "ast-to-graphviz.hpp"
+#include "AST2GraphViz/default.hpp"
 
 namespace AST2GraphViz {
 
-bool Basic::skipNode(SgNode * node, const EmptyDownAttr & attr_in) {
-  if (isSgProject(node) || isSgFileList(node) ||isSgFile(node))
-    return true;
-  else
-    return false;
-}
+Default::Default() : GraphVizTraversal<EmptyAttr>() {}
 
-void Basic::editNodeDesc(SgNode * node, const EmptyDownAttr & attr_in, const EmptyDownAttr & attr_out, NodeDesc & node_desc) {
+Default::~Default() {}
+
+void Default::editNodeDesc(SgNode * node, const UserInherited & inherited_attr, const UserSynthesized & synthetized_attr, NodeDesc & node_desc) {
   std::ostringstream oss_label;
 
   SgDeclarationStatement  * decl_stmt  = isSgDeclarationStatement(node);
@@ -84,7 +81,7 @@ void Basic::editNodeDesc(SgNode * node, const EmptyDownAttr & attr_in, const Emp
   node_desc.label = oss_label.str();
 }
 
-void Basic::editEdgeDesc(SgNode * node, const EmptyDownAttr & attr_in, const EmptyDownAttr & attr_out, SgNode * parent, EdgeDesc & edge_desc) {
+void Default::editParentEdgeDesc(SgNode * node, SgNode * parent, const UserInherited & inherited_attr, const UserSynthesized & synthetized_attr, EdgeDesc & edge_desc) {
   edge_desc.label = "";
   edge_desc.color = "black";
   edge_desc.constraint = true;
