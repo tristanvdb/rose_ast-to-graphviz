@@ -21,7 +21,7 @@ clean:
 
 ############
 
-HEADER_DEPS=$(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/default.hpp $(INC_DIR)/AST2GraphViz/cluster.hpp
+HEADER_DEPS=$(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp $(INC_DIR)/AST2GraphViz/cluster.hpp
 
 whole-ast-to-graphviz.o: whole-ast-to-graphviz.cpp $(HEADER_DEPS)
 	c++ $(INCLUDES) -g -c whole-ast-to-graphviz.cpp -o whole-ast-to-graphviz.o
@@ -37,7 +37,7 @@ extract-api-fragment: extract-api-fragment.o $(LIB_DIR)/default.o $(LIB_DIR)/clu
 
 ############
 
-$(LIB_DIR)/default.o: $(LIB_DIR)/default.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/default.hpp
+$(LIB_DIR)/default.o: $(LIB_DIR)/default.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp
 	make -C $(LIB_DIR) default.o
 
 $(LIB_DIR)/cluster.o: $(LIB_DIR)/cluster.cpp $(HEADER_DEPS)

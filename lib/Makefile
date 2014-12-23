@@ -9,10 +9,10 @@ INCLUDES=-I$(INC_DIR) -I$(INSTALL_DIR)/include/ -I$(INSTALL_DIR)/include/rose -I
 
 all: default.o cluster.o
 
-default.o: default.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/default.hpp
+default.o: default.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp
 	c++ $(INCLUDES) -g -c default.cpp -o default.o
 
-cluster.o: cluster.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/default.hpp $(INC_DIR)/AST2GraphViz/cluster.hpp
+cluster.o: cluster.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp $(INC_DIR)/AST2GraphViz/cluster.hpp
 	c++ $(INCLUDES) -g -c cluster.cpp -o cluster.o
 
 clean:
