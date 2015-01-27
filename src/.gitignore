@@ -1,6 +1,8 @@
 *.dot
 *.svg
-empty
-empty.o
-default
-default.o
+empty-viz
+empty-viz.o
+default-viz
+default-viz.o
+programmable-viz
+programmable-viz.o

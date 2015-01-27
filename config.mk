@@ -16,7 +16,9 @@ KLT_LIBS=-lKLT -lKLT-core
 
 INCLUDES=-I$(VIZ_INC) -I$(ROSE_DIR)/include/ -I$(ROSE_DIR)/include/rose -I$(BOOST_DIR)/include
 
-LIBDIRS=-L$(ROSE_DIR)/lib -L$(BOOST_DIR)/lib
+LIBDIRS=-L$(ROSE_DIR)/lib -L$(BOOST_DIR)/lib -L$(VIZ_LIB)/traversals
 
-LIBS=$(BOOST_LIBS) $(ROSE_LIBS) $(DLX_LIBS) $(MFB_LIBS) $(MDCG_LIBS) $(KLT_LIBS)
+LIBS=$(BOOST_LIBS) $(ROSE_LIBS) -lVizTraversals
+
+VIZ_LD_LIBRARY_PATH=$(ROSE_DIR)/lib:$(BOOST_DIR)/lib:$(VIZ_LIB)/traversals
 
