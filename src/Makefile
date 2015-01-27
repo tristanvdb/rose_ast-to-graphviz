@@ -1,46 +1,40 @@
 
-INSTALL_DIR=/media/ssd/projects/currents/RoseACC-workspace/install_dir/
+VIZ_DIR=..
+include $(VIZ_DIR)/config.mk
 
-BOOST_DIR=/media/ssd/boost/install/1_45_0
+BINS=empty default
+TARGETS=empty.o default.o
 
-INC_DIR=../include
-LIB_DIR=../lib
+all: $(BINS)
 
-INCLUDES=-I$(INC_DIR) -I$(INSTALL_DIR)/include/ -I$(INSTALL_DIR)/include/rose -I$(BOOST_DIR)/include
-
-LIBDIRS=-L$(INSTALL_DIR)/lib -L$(BOOST_DIR)/lib
-
-LIBS=-lrose -lboost_filesystem -lboost_system -lboost_iostreams -lboost_date_time -lboost_wave -lboost_thread -lboost_program_options -lboost_regex
-
-all: whole-ast-to-graphviz extract-api-fragment
-
-check: all
+check: check-empty check-default
 	
 clean:
-	rm -f whole-ast-to-graphviz.o whole-ast-to-graphviz extract-api-fragment.o extract-api-fragment
+	rm -f $(BINS) $(TARGETS)
+	rm -f *.dot *.svg
 
 ############
 
-HEADER_DEPS=$(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp $(INC_DIR)/AST2GraphViz/cluster.hpp
+$(TARGETS): %.o: %.cpp ../include/Viz/traversal.hpp
+	c++ $(INCLUDES) -g -c $< -o $@
 
-whole-ast-to-graphviz.o: whole-ast-to-graphviz.cpp $(HEADER_DEPS)
-	c++ $(INCLUDES) -g -c whole-ast-to-graphviz.cpp -o whole-ast-to-graphviz.o
-
-whole-ast-to-graphviz: whole-ast-to-graphviz.o $(LIB_DIR)/default.o $(LIB_DIR)/cluster.o
-	c++ $(INCLUDES) $(LIBDIRS) $(LIBS) whole-ast-to-graphviz.o $(LIB_DIR)/default.o $(LIB_DIR)/cluster.o -o whole-ast-to-graphviz
-
-extract-api-fragment.o: extract-api-fragment.cpp $(HEADER_DEPS)
-	c++ $(INCLUDES) -g -c extract-api-fragment.cpp -o extract-api-fragment.o
-
-extract-api-fragment: extract-api-fragment.o $(LIB_DIR)/default.o $(LIB_DIR)/cluster.o
-	c++ $(INCLUDES) $(LIBDIRS) $(LIBS) extract-api-fragment.o $(LIB_DIR)/default.o $(LIB_DIR)/cluster.o -o extract-api-fragment
+$(BINS): %: %.o
+	c++ $(INCLUDES) $(LIBDIRS) $(LIBS) $< -o $@
 
 ############
 
-$(LIB_DIR)/default.o: $(LIB_DIR)/default.cpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.hpp $(INC_DIR)/AST2GraphViz/ast-to-graphviz.tpp $(INC_DIR)/AST2GraphViz/default.hpp
-	make -C $(LIB_DIR) default.o
+check-empty: empty_test_01.svg empty_test_02.svg
 
-$(LIB_DIR)/cluster.o: $(LIB_DIR)/cluster.cpp $(HEADER_DEPS)
-	make -C $(LIB_DIR) cluster.o
+empty_%.dot: $(VIZ_EXAMPLES)/%.c empty
+	./empty -prefix empty_ -DSKIP_ROSE_BUILTIN_DECLARATIONS $<
 
+check-default: default_test_01.svg default_test_02.svg
+
+default_%.dot: $(VIZ_EXAMPLES)/%.c default
+	./default -prefix default_ -DSKIP_ROSE_BUILTIN_DECLARATIONS $<
+
+%.svg: %.dot
+	dot -Tsvg $< -o $@
+
+############
 
